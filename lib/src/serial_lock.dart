@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:synchronized_call/src/base_lock.dart';
 
 /// Take advantage of 'a single thread' in dart & await sequence queue.
-class SerialLock implements Lock {
+class SerialLock extends CallLock {
   Completer? _completer;
 
   int _locking = 0;
@@ -24,7 +24,8 @@ class SerialLock implements Lock {
       _completer = null;
       // we can set it to null, cause other waiting the future, not the completer
       if (_locking == 0) {
-        // TODO ... To Be Enhanced. We can notify to the listener that task queue is clear/all block is executed
+        // notify to the listener that task queue is clear/all block is executed
+        finish();
       }
     }
   }

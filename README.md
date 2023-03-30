@@ -1,34 +1,34 @@
 # synchronized_call
 
-Synchronized mechanism for async function calls, to prevent concurrent access to the asynchronous code.
 
+[![pub package](https://img.shields.io/pub/v/synchronized_call.svg)](https://pub.dev/packages/synchronized_call)
 
 ## Feature
 
-* Pure `Dart` language. No dependencies
+Synchronized mechanism for `async` function calls
 
-Inspired by [`synchronized`](https://pub.dev/packages/synchronized) package, but it erase weakness that with so many `Completer` create at one time, and support to observer all the bloc is finished.
+* Prevent concurrent access to the asynchronous code
+* Throttle and debounce calls for asynchronous function
+* Pure `Dart` language implementation, no other dependencies
+
+Inspired by [`synchronized`](https://pub.dev/packages/synchronized) package, but it eliminates the disadvantage of creating too many `Completer` at once, and supports observers to listen when all blocs were done executed.
 
 ## Example
 
 Consider the following dummy code
 
 ```dart
-  Future write(int index) async {
+Future writeBatch(List<int> indexes) async {
+  for (var i in indexes) {
     await Future.delayed(Duration(microseconds: 1));
-    print('$index');
+    print('$i');
   }
+}
 
-  Future writeBatch(List<int> indexes) async {
-    for (var i in indexes) {
-      await write(i);
-    }
-  }
-
-  void doWrite() async {
-    await writeBatch([1, 2, 3, 4, 5]);
-    print(' ');
-  }
+void doWrite() async {
+  await writeBatch([1, 2, 3, 4, 5]);
+  print(' ');
+}
 ```
 
 Doing
@@ -42,16 +42,24 @@ doWrite();
 /// but we expect: '123451234512345'
 ```
 
-So using the `Lock` in `synchronized_call` package:
+So using the `CallLock` in `synchronized_call` package:
 
 ```dart
-Lock lock = Lock();
+import 'package:synchronized_call/synchronized_call.dart';
+CallLock lock = CallLock.create();
 
 lock.call(doWrite);
 lock.call(doWrite);
 lock.call(doWrite);
 
 /// now the output will be: '123451234512345'
+```
+
+Want to receive a callback when all bloc invoked in queue were done:
+```dart
+lock.addListener(() {
+print('All bloc are done executed.');
+});
 ```
 
 
