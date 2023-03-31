@@ -4,17 +4,20 @@ import 'package:synchronized_call/src/base_lock.dart';
 
 /// Take advantage of 'a single thread' in dart & await sequence queue.
 class SerialLock extends CallLock {
+  SerialLock({this.isSync});
+
+  bool? isSync;
   Completer? _completer;
 
   int _locking = 0;
 
   @override
-  Future<T> call<T>(FutureOr<T> Function() fn) async {
+  FutureOr<T> call<T>(FutureOr<T> Function() fn) async {
     _locking++;
     while (_completer != null) {
       await _completer?.future;
     }
-    _completer = Completer();
+    _completer = isSync == true ? Completer<void>.sync() : Completer<void>();
     try {
       var result = fn();
       return result is Future ? await result : result;

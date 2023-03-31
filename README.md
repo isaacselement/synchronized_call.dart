@@ -13,6 +13,8 @@ Synchronized mechanism for `async` function calls
 
 Inspired by [`synchronized`](https://pub.dev/packages/synchronized) package, but it eliminates the disadvantage of creating too many `Completer` at once, and supports observers to listen when all blocs were done executed.
 
+##### If you are able to get all Future immediately, recommend to use `Future.forEach`(in turn) or `Future.wait` (order not guaranteed).
+
 ## Example
 
 Consider the following dummy code
@@ -39,7 +41,7 @@ doWrite();
 doWrite();
 
 /// will print: '111222333444555'
-/// but we expect: '123451234512345'
+/// but we expect: '12345 12345 12345'
 ```
 
 So using the `CallLock` in `synchronized_call` package:
@@ -52,16 +54,17 @@ lock.call(doWrite);
 lock.call(doWrite);
 lock.call(doWrite);
 
-/// now the output will be: '123451234512345'
+/// now the output will be: '12345 12345 12345'
 ```
 
 Want to receive a callback when all bloc invoked in queue were done:
 ```dart
 lock.addListener(() {
-print('All bloc are done executed.');
+  print('All bloc are done executed.');
 });
 ```
 
+##### Except for `SerialLock` and `SyncLock`, a extra lock called `InclusiveLock` provides functionality that execute only head-to-tail bloc tasks, please feel free to use :)
 
 ## Features and bugs
 

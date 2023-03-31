@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:synchronized_call/src/serial_lock.dart';
-import 'package:synchronized_call/src/sync_lock.dart';
 
 abstract class CallLock with CallListener {
   /// create a new instance
-  static create({bool? isSync}) => isSync == true ? SyncLock() : SerialLock();
+  static create({bool? isSync}) => SerialLock(isSync: isSync);
 
   /// maintain a maned lock instances
   static final Map<String, CallLock> _namedLocks = {};
@@ -21,7 +20,7 @@ abstract class CallLock with CallListener {
   /// return true if currently is locked, that means there is executing block here and not finish
   bool get isLocking;
 
-  Future<T> call<T>(FutureOr<T> Function() fn);
+  FutureOr<T> call<T>(FutureOr<T> Function() fn);
 
   /// call when the all blocks are done executed, notify to the listeners
   void finish() {
@@ -29,8 +28,7 @@ abstract class CallLock with CallListener {
   }
 }
 
-typedef VoidCallback = void Function();
-
+/// Listener for monitoring the time when the async functions were executed done
 mixin CallListener {
   List<VoidCallback>? _listeners = <VoidCallback>[];
 
@@ -43,7 +41,7 @@ mixin CallListener {
   void removeListener(VoidCallback listener) => listeners.remove(listener);
 
   void dispose() {
-    assert(_listeners != null, 'Listeners already disposed, do not use this instance anymore');
+    assert(_listeners != null, 'Listeners already disposed❗️❗️❗️');
     _listeners?.clear();
     _listeners = null;
   }
@@ -54,3 +52,5 @@ mixin CallListener {
     }
   }
 }
+
+typedef VoidCallback = void Function();

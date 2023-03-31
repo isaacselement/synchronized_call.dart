@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:synchronized_call/src/base_lock.dart';
 
 /// Inspired by https://pub.dev/packages/synchronized
-/// Compared with [SerialLock], it & [SyncLock] will create ths same number of Completer as calls come in at the same time
+/// Different from [SerialLock], the package's Lock & [SyncLock] will create ths same number of Completer as calls come in at the same time
 class SyncLock extends CallLock {
+  SyncLock({this.isSync});
+
+  bool? isSync;
   Completer? _completer;
 
   @override
-  Future<T> call<T>(FutureOr<T> Function() fn) async {
+  FutureOr<T> call<T>(FutureOr<T> Function() fn) async {
     Completer? _previous = _completer;
-    Completer completer = Completer<void>.sync();
+    Completer completer = isSync == true ? Completer.sync() : Completer();
     _completer = completer;
 
     // Waiting for the previous running block
