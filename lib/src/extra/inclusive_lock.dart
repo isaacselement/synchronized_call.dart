@@ -18,11 +18,11 @@ class InclusiveLock extends CallLock {
     /// so we can achieve the goal: just execute the first and the last bloc that the caller requested
     queue.clear();
     queue.add(fn);
-    var result = execute();
+    var result = _execute();
     return result is Future ? await result : result;
   }
 
-  FutureOr<dynamic> execute({dynamic result}) async {
+  FutureOr<dynamic> _execute({dynamic result}) async {
     /// use `while` cause the 'current' may changed, when caller constantly add new bloc using 'call' method
     while (current != null) {
       result = await current;
@@ -37,7 +37,7 @@ class InclusiveLock extends CallLock {
       }
 
       /// check if any updated in queue again
-      return await execute(result: result);
+      return await _execute(result: result);
     }
     if (--_locking == 0) Future.microtask(() => finish());
     return result;

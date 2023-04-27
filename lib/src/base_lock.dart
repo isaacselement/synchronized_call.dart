@@ -1,8 +1,18 @@
 import 'dart:async';
 
-import 'package:synchronized_call/src/serial_lock.dart';
+import 'package:synchronized_call/synchronized_call.dart';
 
 abstract class CallLock with CallListener {
+  /// return true if currently is locked, that means there is executing block here and not finish
+  bool get isLocking;
+
+  FutureOr<T> call<T>(FutureOr<T> Function() fn);
+
+  /// call when the all blocks are done executed, notify to the listeners
+  void finish() {
+    notifyListeners();
+  }
+
   /// create a new instance
   static create({bool? isSync}) => SerialLock(isSync: isSync);
 
@@ -17,14 +27,28 @@ abstract class CallLock with CallListener {
 
   static CallLock? remove(String name) => _namedLocks.remove(name);
 
-  /// return true if currently is locked, that means there is executing block here and not finish
-  bool get isLocking;
+  static void removeLock(CallLock lock) => _namedLocks.removeWhere((k, v) => v == lock);
 
-  FutureOr<T> call<T>(FutureOr<T> Function() fn);
-
-  /// call when the all blocks are done executed, notify to the listeners
-  void finish() {
-    notifyListeners();
+  /// maintain a named lock by T
+  static CallLock got<T extends CallLock>([String? name]) {
+    String key = 'Got.${T.toString()}';
+    if (name != null) {
+      key = '$key.$name';
+    }
+    CallLock? lock = _namedLocks[key];
+    if (lock != null) return lock as T;
+    if (T == SyncLock) {
+      lock = SyncLock();
+    } else if (T == SerialLock) {
+      lock = SerialLock();
+    } else if (T == InclusiveLock) {
+      lock = InclusiveLock();
+    }
+    if (lock != null) {
+      _namedLocks[key] = lock;
+    }
+    assert(lock != null, 'ERROR: Cannot create a new [${T.toString()}] instance, please register here.');
+    return lock ?? get(key);
   }
 }
 
