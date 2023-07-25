@@ -2,19 +2,23 @@ import 'dart:async';
 
 import 'package:synchronized_call/src/base_lock.dart';
 
+/**
+ * Head-Tail Queue
+ **/
+
 /// Just execute the first and the last bloc function in queue
 class InclusiveLock extends CallLock {
   List<FutureOr<dynamic> Function()> queue = [];
 
   FutureOr<dynamic>? current;
 
-  int _locking = 0;
+  int _waiting = 0;
 
   @override
   FutureOr<T> call<T>(FutureOr<T> Function() fn) async {
-    _locking++;
+    _waiting++;
 
-    /// clear before add, only keep the newest bloc task in queue, make it seems hollow the queue
+    /// clear before add, only keep the newest bloc task in queue, make it as a head-tail queue
     /// so we can achieve the goal: just execute the first and the last bloc that the caller requested
     queue.clear();
     queue.add(fn);
@@ -39,10 +43,10 @@ class InclusiveLock extends CallLock {
       /// check if any updated in queue again
       return await _execute(result: result);
     }
-    if (--_locking == 0) Future.microtask(() => finish());
+    if (--_waiting == 0) Future.microtask(() => finish());
     return result;
   }
 
   @override
-  bool get isLocking => queue.isNotEmpty && current == null;
+  bool get isRunning => _waiting != 0;
 }

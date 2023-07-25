@@ -34,18 +34,18 @@ void main() {
       lock.call(doWrite);
     }
     lock.addListener(() {
-      print('>>>>>>>>> Done [SerialLock] async test');
+      print('>>>>>>>>> Done [SerialLock] async test\n');
     });
     await Future.delayed(Duration(seconds: 3));
 
     ///
-    print('>>>>>>>>> Start [SerialLock] sync test');
+    print('>>>>>>>>> Start [SerialLock] sync test, using Completer.sync()');
     CallLock syncLock = CallLock.create(isSync: true);
     for (int i = 0; i < _count; i++) {
       syncLock.call(doWrite);
     }
     syncLock.addListener(() {
-      print('>>>>>>>>> Done [SerialLock] sync test');
+      print('>>>>>>>>> Done [SerialLock] sync test\n');
     });
     await Future.delayed(Duration(seconds: 3));
 
@@ -55,7 +55,7 @@ void main() {
       CallLock.get('__async_test__').call(doWrite);
     }
     CallLock.get('__async_test__').addListener(() {
-      print('>>>>>>>>> Done [SerialLock] test with name ~~~');
+      print('>>>>>>>>> Done [SerialLock] test with name ~~~\n');
     });
     await Future.delayed(Duration(seconds: 3));
 
@@ -66,18 +66,18 @@ void main() {
       CallLock.get('__async_lock__').call(doWrite);
     }
     CallLock.get('__async_lock__').addListener(() {
-      print('>>>>>>>>> Done [SyncLock] async test');
+      print('>>>>>>>>> Done [SyncLock] async test\n');
     });
     await Future.delayed(Duration(seconds: 3));
 
     ///
-    print('>>>>>>>>> Start [SyncLock] sync test');
+    print('>>>>>>>>> Start [SyncLock] sync test, using Completer.sync()');
     CallLock.set('__sync_lock__', SyncLock(isSync: true));
     for (int i = 0; i < _count; i++) {
       CallLock.get('__sync_lock__').call(doWrite);
     }
     CallLock.get('__sync_lock__').addListener(() {
-      print('>>>>>>>>> Done [SyncLock] sync test');
+      print('>>>>>>>>> Done [SyncLock] sync test\n');
     });
     await Future.delayed(Duration(seconds: 3));
   }();

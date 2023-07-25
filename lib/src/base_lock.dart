@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:synchronized_call/synchronized_call.dart';
 
 abstract class CallLock with CallListener {
-  /// return true if currently is locked, that means there is executing block here and not finish
-  bool get isLocking;
+  /// return true if currently having a bloc running, that means there is executing block or queue is not finished
+  bool get isRunning;
 
   FutureOr<T> call<T>(FutureOr<T> Function() fn);
 
@@ -21,9 +21,13 @@ abstract class CallLock with CallListener {
 
   static Map<String, CallLock> get locks => _namedLocks;
 
+  static bool has(String name) => (_namedLocks[name] != null);
+
   static CallLock get(String name) => (_namedLocks[name] ??= CallLock.create());
 
   static CallLock set(String name, CallLock lock) => (_namedLocks[name] = lock);
+
+  static CallLock setIfNull(String name, CallLock lock) => (_namedLocks[name] ??= lock);
 
   static CallLock? remove(String name) => _namedLocks.remove(name);
 
@@ -43,6 +47,8 @@ abstract class CallLock with CallListener {
       lock = SerialLock();
     } else if (T == InclusiveLock) {
       lock = InclusiveLock();
+    } else if (T == ExclusiveLock) {
+      lock = ExclusiveLock();
     }
     if (lock != null) {
       _namedLocks[key] = lock;
