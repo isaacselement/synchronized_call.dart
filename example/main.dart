@@ -4,6 +4,12 @@ import 'dart:io';
 import 'package:synchronized_call/synchronized_call.dart';
 
 void main() {
+  testId();
+  testGot();
+  // testSyncCall();
+}
+
+void testSyncCall() {
   Future writeBatch(List<int> indexes) async {
     for (var i in indexes) {
       await Future.delayed(Duration(milliseconds: 100));
@@ -81,4 +87,30 @@ void main() {
     });
     await Future.delayed(Duration(seconds: 3));
   }();
+}
+
+void testGot() {
+  CallLock callLock = CallLock.got();
+  print('GOT: $callLock');
+}
+
+void testId() {
+  String identifier = '11EE-1122-11EE-1122';
+  CallLock callLock = CallLock.id(identifier);
+  callLock.call(() async {
+    await Future.delayed(Duration(milliseconds: 500));
+    print('------------ In 500s has me? ${CallLock.has('ID.$identifier')} ------------');
+  });
+  /// Will do the work in queue ~~~
+  callLock.call(() async {
+    await Future.delayed(Duration(seconds: 2));
+    print('------------ done the time-consume 2s work ------------');
+  });
+  callLock.call(() async {
+    await Future.delayed(Duration(seconds: 1));
+    print('------------ done the time-consume 1s work ------------');
+  });
+  callLock.addListener(() {
+    print('------------ In done has me? ${CallLock.has('ID.$identifier')} ------------');
+  });
 }

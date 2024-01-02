@@ -16,7 +16,7 @@ abstract class CallLock with CallListener {
   /// create a new instance
   static create({bool? isSync}) => SerialLock(isSync: isSync);
 
-  /// maintain a maned lock instances
+  /// maintain a maned lock instances cache
   static final Map<String, CallLock> _namedLocks = {};
 
   static Map<String, CallLock> get locks => _namedLocks;
@@ -33,15 +33,13 @@ abstract class CallLock with CallListener {
 
   static void removeLock(CallLock lock) => _namedLocks.removeWhere((k, v) => v == lock);
 
-  /// maintain a named lock by T
-  static CallLock got<T extends CallLock>([String? name]) {
-    String key = 'Got.${T.toString()}';
-    if (name != null) {
-      key = '$key.$name';
-    }
-    CallLock? lock = _namedLocks[key];
-    if (lock != null) return lock as T;
-    if (T == SyncLock) {
+  /// create a new instance by supported T, if T is not supported, return null
+  static T? createByType<T extends CallLock>() {
+    CallLock? lock;
+    if (T == CallLock) {
+      // when T is not specified, use SerialLock as default
+      lock = SerialLock();
+    } else if (T == SyncLock) {
       lock = SyncLock();
     } else if (T == SerialLock) {
       lock = SerialLock();
@@ -50,11 +48,43 @@ abstract class CallLock with CallListener {
     } else if (T == ExclusiveLock) {
       lock = ExclusiveLock();
     }
-    if (lock != null) {
-      _namedLocks[key] = lock;
-    }
     assert(lock != null, 'ERROR: Cannot create a new [${T.toString()}] instance, please register here.');
-    return lock ?? get(key);
+    return lock as T?;
+  }
+
+  /// return maintain a named lock by T
+  static CallLock got<T extends CallLock>([String? name]) {
+    // when T is not specified, key will be 'Got.CallLock'
+    String key = 'GOT.${T.toString()}';
+    if (name != null) key = '$key.$name';
+    // return if already exist in cache
+    CallLock? lock = _namedLocks[key];
+    if (lock != null) return lock;
+
+    // create a new instance by T
+    lock = createByType<T>();
+    // if lock is null, use default instance create by get
+    lock ??= get(key);
+    _namedLocks[key] = lock;
+    return lock;
+  }
+
+  /// return a lock instance by identifier, the lock will be remove from cache when all blocks are done executed
+  static CallLock id<T extends CallLock>(String identifier) {
+    String key = 'ID.$identifier';
+    CallLock? lock = _namedLocks[key];
+    if (lock != null) return lock;
+
+    // create a new instance by T
+    lock = createByType<T>();
+    // if lock is null, use default instance create by get
+    lock ??= get(key);
+    _namedLocks[key] = lock;
+
+    lock.addListener(() {
+      _namedLocks.remove(key);
+    });
+    return lock;
   }
 }
 

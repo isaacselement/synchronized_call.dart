@@ -1,3 +1,7 @@
+## 1.0.5
+
+- New feature: the `id` method in `CallLock` that support temporary lock
+
 ## 1.0.4
 
 - New feature: `ExclusiveLock` that support for executing first bloc task exclusively
