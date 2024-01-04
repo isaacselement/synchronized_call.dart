@@ -1,6 +1,6 @@
 name: synchronized_call
 
-version: 1.0.5
+version: 1.0.8
 
 description: Lock mechanism to prevent concurrent access to asynchronous code.
 

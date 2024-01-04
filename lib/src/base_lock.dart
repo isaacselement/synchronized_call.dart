@@ -90,15 +90,15 @@ abstract class CallLock with CallListener {
 
 /// Listener for monitoring the time when the async functions were executed done
 mixin CallListener {
-  List<VoidCallback>? _listeners = <VoidCallback>[];
+  List<VoidCallbackFunc>? _listeners = <VoidCallbackFunc>[];
 
   List get listeners => _listeners!;
 
   bool get hasListeners => listeners.isNotEmpty;
 
-  void addListener(VoidCallback listener) => listeners.add(listener);
+  void addListener(VoidCallbackFunc listener) => listeners.add(listener);
 
-  void removeListener(VoidCallback listener) => listeners.remove(listener);
+  void removeListener(VoidCallbackFunc listener) => listeners.remove(listener);
 
   void dispose() {
     assert(_listeners != null, 'Listeners already disposed❗️❗️❗️');
@@ -107,10 +107,10 @@ mixin CallListener {
   }
 
   void notifyListeners() {
-    for (VoidCallback listener in listeners) {
+    for (VoidCallbackFunc listener in listeners) {
       listener();
     }
   }
 }
 
-typedef VoidCallback = void Function();
+typedef VoidCallbackFunc = void Function();
