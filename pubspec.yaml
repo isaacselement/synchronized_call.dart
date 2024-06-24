@@ -1,6 +1,6 @@
 name: synchronized_call
 
-version: 1.0.8
+version: 1.1.0
 
 description: Lock mechanism to prevent concurrent access to asynchronous code.
 
@@ -9,7 +9,7 @@ homepage: https://github.com/isaacselement/synchronized_call.dart
 repository: https://github.com/isaacselement/synchronized_call.dart
 
 environment:
-  sdk: '>=2.12.2 <3.0.0'
+  sdk: '>=2.12.2 <4.0.0'
 
 
 dev_dependencies:

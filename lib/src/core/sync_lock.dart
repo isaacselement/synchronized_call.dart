@@ -1,16 +1,15 @@
 import 'dart:async';
 
-import 'package:synchronized_call/src/base_lock.dart';
+import 'package:synchronized_call/src/core/base_lock.dart';
 
-/**
- * Serial Queue
- **/
+/// Serial Queue
 
-/// Inspired by https://pub.dev/packages/synchronized
-/// Different from [SerialLock], synchronized package's [Lock] & [SyncLock] here will create ths same number of Completer as calls come in at the same time
-/// If you call [Lock.synchronized]/[SyncLock.call] 1000 times, it will create 1000 Completer, then each Completer will be completed one by one
-/// So, we recommended to use [SerialLock] instead of [Lock]/[SyncLock] in most cases
-class SyncLock extends CallLock {
+/// Inspired by:
+/// https://pub.dev/packages/synchronized
+/// https://github.com/tekartik/synchronized.dart/blob/master/synchronized/lib/src/basic_lock.dart
+/// It will create ths same number of Completer as call invocations, then each Completer will be completed one by one
+
+class SyncLock extends BaseLock {
   SyncLock({this.isSync});
 
   bool? isSync;

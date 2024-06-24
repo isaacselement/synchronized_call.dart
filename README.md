@@ -5,22 +5,21 @@
 
 ## Feature
 
-Synchronized mechanism for `async` function calls
+Synchronized mechanism for `async` function calls. Inspired by [`synchronized`](https://pub.dev/packages/synchronized) package.
 
 * Prevent concurrent access to the asynchronous code
 * Throttle and debounce calls for asynchronous function
-* Pure `Dart` language implementation, no other dependencies
+* Supports add listener to observe whether all async function/bloc are completed
 
-Inspired by [`synchronized`](https://pub.dev/packages/synchronized) package, but it eliminates the disadvantage of creating too many `Completer` at once, and supports observers to listen when all blocs were done executed.
 
-##### If you are able to get all Future immediately, recommend to use `Future.forEach`(in turn) or `Future.wait` (order not guaranteed).
+> Differ from `Future.forEach`(in order) or `Future.wait` (order not guaranteed), you can use this/synchronized package at the scenario that without having to get all futures at the same time.
 
 ## Example
 
-Consider the following dummy code
+Consider the following async fuction `doWrite`:
 
 ```dart
-Future writeBatch(List<int> indexes) async {
+Future _writeBatch(List<int> indexes) async {
   for (var i in indexes) {
     await Future.delayed(Duration(microseconds: 1));
     print('$i');
@@ -28,12 +27,12 @@ Future writeBatch(List<int> indexes) async {
 }
 
 void doWrite() async {
-  await writeBatch([1, 2, 3, 4, 5]);
+  await _writeBatch([1, 2, 3, 4, 5]);
   print(' ');
 }
 ```
 
-Doing
+Calling `doWrite` 3 times:
 
 ```dart
 doWrite();
@@ -44,27 +43,52 @@ doWrite();
 /// but we expect: '12345 12345 12345'
 ```
 
-So using the `CallLock` in `synchronized_call` package:
+Then using the `CallLock` in `synchronized_call` package:
 
 ```dart
 import 'package:synchronized_call/synchronized_call.dart';
-CallLock lock = CallLock.create();
+
+BaseLock lock = CallLock.create();
 
 lock.call(doWrite);
 lock.call(doWrite);
 lock.call(doWrite);
 
-/// now the output will be: '12345 12345 12345'
+/// now the output will be you expected: '12345 12345 12345'
 ```
 
-Want to receive a callback when all bloc invoked in queue were done:
+Want to receive a callback when all bloc were done executed:
 ```dart
 lock.addListener(() {
   print('All bloc are done executed.');
 });
 ```
 
-##### Except for `SerialLock` and `SyncLock`, a extra lock called `InclusiveLock` provides functionality that execute only head-to-tail bloc tasks, please feel free to use :)
+## Another way to Use
+Put async codes/bloc between `await lock()` and `unlock()` methods
+
+
+    Locker lock = Locker();
+
+    void do() async {
+        await lock.lock();
+    
+        /// ...
+        /// other async or sync codes here ...
+        /// ...
+        await doWrite();
+        
+        lock.unlock();
+    }
+    
+    do();
+    do();
+    do();
+
+    /// the output will be you expected: '12345 12345 12345'
+
+
+
 
 ## Features and bugs
 

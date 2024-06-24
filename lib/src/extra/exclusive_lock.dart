@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:synchronized_call/src/base_lock.dart';
+import 'package:synchronized_call/src/core/base_lock.dart';
 
 /**
  * Head Queue
  **/
 
 /// Just execute the first bloc function in queue, when first bloc is running, others will wait for its result
-class ExclusiveLock extends CallLock {
+class ExclusiveLock extends BaseLock {
   FutureOr<dynamic>? current;
 
   int _waiting = 0;

@@ -1,10 +1,16 @@
 library synchronized_call;
 
-export 'src/base_lock.dart';
-export 'src/sync_lock.dart';
-export 'src/serial_lock.dart';
-export 'src/locks/inclusive_lock.dart';
-export 'src/locks/exclusive_lock.dart';
+// manager
+export 'src/call_lock.dart';
+
+export 'src/core/base_lock.dart';
+export 'src/core/sync_lock.dart';
+export 'src/core/serial_lock.dart';
 
 // extra
-export 'src/extra/future_queue.dart';
+export 'src/extra/inclusive_lock.dart';
+export 'src/extra/exclusive_lock.dart';
+export 'src/extra/queue_future.dart';
+
+// misc
+export 'src/misc/lockers.dart';

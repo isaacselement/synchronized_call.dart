@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:synchronized_call/src/base_lock.dart';
+import 'package:synchronized_call/src/core/base_lock.dart';
 
 /**
  * Head-Tail Queue
  **/
 
 /// Just execute the first and the last bloc function in queue
-class InclusiveLock extends CallLock {
+class InclusiveLock extends BaseLock {
   List<FutureOr<dynamic> Function()> queue = [];
 
   FutureOr<dynamic>? current;

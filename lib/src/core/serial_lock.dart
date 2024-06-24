@@ -1,13 +1,14 @@
 import 'dart:async';
 
-import 'package:synchronized_call/src/base_lock.dart';
+import 'package:synchronized_call/src/core/base_lock.dart';
 
-/**
- * Serial Queue
- **/
+/// Serial Queue
 
-/// Take advantage of 'a single thread' in dart & await sequence queue.
-class SerialLock extends CallLock {
+/// Take advantage of 'a single thread' in dart & await sequence queue
+/// When all the waiters are released, they will be asked to wait for `the first released one to be completed`
+/// Therefore all the blocs will be executed in sequence
+
+class SerialLock extends BaseLock {
   SerialLock({this.isSync});
 
   bool? isSync;
